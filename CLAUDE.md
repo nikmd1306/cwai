@@ -1,7 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project
 
 CWAI (Commits with AI) — Go CLI tool that generates conventional commit messages from staged git changes using OpenAI-compatible APIs.
@@ -9,7 +7,7 @@ CWAI (Commits with AI) — Go CLI tool that generates conventional commit messag
 ## Build & Run
 
 ```bash
-make build      # Build binary with version from git describe
+make build      # Build binary
 make install    # Install to $GOPATH/bin
 make clean      # Remove compiled binary
 go test ./...   # Run all tests
@@ -54,6 +52,10 @@ Staged changes → git diff → token truncation → prompt construction → AI 
 ## Configuration
 
 INI file at `~/.cwai`. Key settings: `CWAI_API_KEY`, `CWAI_API_URL`, `CWAI_MODEL`, `CWAI_LANGUAGE`, `CWAI_MAX_TOKENS_INPUT`, `CWAI_MAX_TOKENS_OUTPUT`, `CWAI_TEMPERATURE`, `CWAI_REASONING_EFFORT`, `CWAI_VERBOSITY`, `CWAI_STRUCTURED_OUTPUT`.
+
+## Commits
+
+When asked to commit, use `cwai` instead of `git commit`: stage files with `git add`, then run `cwai` to generate and apply the commit message. Use `cwai --yes` (or `cwai -y`) for non-interactive mode (CI, scripts, agents).
 
 ## Conventions
 
