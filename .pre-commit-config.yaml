@@ -15,3 +15,12 @@ repos:
     rev: v2.1.6
     hooks:
       - id: golangci-lint
+
+  - repo: local
+    hooks:
+      - id: go-test
+        name: go test
+        entry: go test ./...
+        language: system
+        pass_filenames: false
+        types: [go]
