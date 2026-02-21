@@ -2,3 +2,4 @@ cwai
 cwai.exe
 dist/
 .DS_Store
+.envrc
