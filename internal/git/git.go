@@ -90,3 +90,22 @@ func HooksPath() (string, error) {
 	}
 	return out, nil
 }
+
+func GetLatestTag() (string, error) {
+	return run("describe", "--tags", "--abbrev=0")
+}
+
+func GetPreviousTag(tag string) (string, error) {
+	return run("describe", "--tags", "--abbrev=0", tag+"^")
+}
+
+func GetCommitsBetween(from, to string) ([]string, error) {
+	out, err := run("log", from+".."+to, "--format=%s")
+	if err != nil {
+		return nil, err
+	}
+	if out == "" {
+		return nil, nil
+	}
+	return strings.Split(out, "\n"), nil
+}

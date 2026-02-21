@@ -21,9 +21,29 @@ jobs:
         with:
           go-version: "1.23.x"
 
+      - name: Build cwai
+        run: go build -o cwai .
+
+      - name: Generate release notes
+        if: ${{ secrets.CWAI_API_KEY != '' }}
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          PREV_TAG=$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            ./cwai changelog --from "$PREV_TAG" --to "$TAG" -o /tmp/release-notes.md
+          else
+            ./cwai changelog --to "$TAG" -o /tmp/release-notes.md
+          fi
+        env:
+          CWAI_API_KEY: ${{ secrets.CWAI_API_KEY }}
+          CWAI_API_URL: ${{ secrets.CWAI_API_URL }}
+          CWAI_MODEL: ${{ secrets.CWAI_MODEL }}
+
       - uses: goreleaser/goreleaser-action@v7
         with:
           version: latest
-          args: release --clean
+          args: >-
+            release --clean
+            ${{ secrets.CWAI_API_KEY != '' && '--release-notes /tmp/release-notes.md' || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

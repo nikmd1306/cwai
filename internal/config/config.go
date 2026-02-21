@@ -104,7 +104,24 @@ func Load() (*Config, error) {
 		cfg.StructuredOutput = v
 	}
 
+	applyEnvOverrides(cfg)
+
 	return cfg, nil
+}
+
+func applyEnvOverrides(cfg *Config) {
+	if v := os.Getenv("CWAI_API_KEY"); v != "" {
+		cfg.APIKey = v
+	}
+	if v := os.Getenv("CWAI_API_URL"); v != "" {
+		cfg.APIURL = v
+	}
+	if v := os.Getenv("CWAI_MODEL"); v != "" {
+		cfg.Model = v
+	}
+	if v := os.Getenv("CWAI_LANGUAGE"); v != "" {
+		cfg.Language = v
+	}
 }
 
 func Set(key, value string) error {
