@@ -108,7 +108,7 @@ Config file: `~/.cwai` (INI format). Use `cwai config set KEY VALUE` or `cwai se
 |-----|-------------|---------|
 | `CWAI_API_KEY` | API key (required) | *not set* |
 | `CWAI_API_URL` | API base URL | `https://api.openai.com/v1` |
-| `CWAI_MODEL` | Model name | `gpt-4o-mini` |
+| `CWAI_MODEL` | Model name | `gpt-5-mini` |
 | `CWAI_LANGUAGE` | Commit message language | `en` |
 | `CWAI_MAX_TOKENS_INPUT` | Max input tokens for diff | `4096` |
 | `CWAI_MAX_TOKENS_OUTPUT` | Max output tokens | `500` |

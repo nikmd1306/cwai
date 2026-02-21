@@ -29,7 +29,7 @@ What actually happened. Include error messages or output.
 - cwai version: [e.g. v0.1.0]
 - Go version: [e.g. 1.23.4]
 - OS: [e.g. macOS 15, Ubuntu 24.04]
-- Model/API: [e.g. gpt-4o-mini via OpenAI]
+- Model/API: [e.g. gpt-5-mini via OpenAI]
 
 ## Additional Context
 

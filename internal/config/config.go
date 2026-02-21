@@ -11,7 +11,7 @@ import (
 
 const (
 	DefaultAPIURL         = "https://api.openai.com/v1"
-	DefaultModel          = "gpt-4o-mini"
+	DefaultModel          = "gpt-5-mini"
 	DefaultLanguage       = "en"
 	DefaultMaxTokensInput = 4096
 	DefaultMaxTokensOut   = 500
