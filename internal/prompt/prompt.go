@@ -13,7 +13,7 @@ FORMAT RULES:
    - <specific change 2>
 
 2. Type MUST be one of: feat, fix, refactor, docs, style, test, chore, perf, ci, build
-3. Scope is REQUIRED — short, generalizing word covering ALL changes
+3. Scope is REQUIRED — short, generalizing word covering ALL changes. Scope MUST NOT repeat the type (BAD: test(tests), ci(ci), docs(docs). GOOD: test(auth), ci(github), docs(readme)).
 4. Description: lowercase, imperative mood, no period, max 72 chars first line
 5. Bullet points when 3+ distinct changes. No bullet points for trivial changes.
 6. Output ONLY the commit message. No explanations, no formatting, no quotes.

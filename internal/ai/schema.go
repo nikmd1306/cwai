@@ -55,7 +55,7 @@ func BuildResponseFormat() map[string]any {
 					},
 					"scope": map[string]any{
 						"type":        "string",
-						"description": "Exactly ONE word, no spaces. Good: auth, api, db, ui. Bad: 'auth system'.",
+						"description": "Exactly ONE word, no spaces. MUST NOT repeat the commit type. Good: auth, api, db, ui. Bad: 'auth system', 'tests' when type is test, 'docs' when type is docs.",
 					},
 					"description": map[string]any{
 						"type":        "string",
