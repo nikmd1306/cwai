@@ -26,11 +26,30 @@
 
 ## Installation
 
+### Quick install (Linux / macOS)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/nikmd1306/cwai/main/install.sh | bash
+```
+
+To install to a custom directory:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/nikmd1306/cwai/main/install.sh | bash -s -- -b ~/.local/bin
+```
+
 ### go install
+
+Requires [Go](https://go.dev/dl/) 1.23+.
 
 ```bash
 go install github.com/nikmd1306/cwai@latest
 ```
+
+> **Note:** Ensure `$(go env GOPATH)/bin` is in your `PATH`:
+> ```bash
+> export PATH="$PATH:$(go env GOPATH)/bin"
+> ```
 
 ### Binary releases
 
