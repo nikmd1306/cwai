@@ -1,6 +1,6 @@
 BINARY := cwai
 VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
-LDFLAGS := -s -w -X main.version=$(VERSION)
+LDFLAGS := -s -w -X github.com/nikmd1306/cwai/cmd.Version=$(VERSION)
 
 .PHONY: build install clean test vet lint check
 

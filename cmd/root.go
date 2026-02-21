@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/nikmd1306/cwai/internal/ai"
 	"github.com/nikmd1306/cwai/internal/config"
 	"github.com/nikmd1306/cwai/internal/diff"
 	"github.com/nikmd1306/cwai/internal/git"
 	"github.com/nikmd1306/cwai/internal/prompt"
+	"github.com/nikmd1306/cwai/internal/update"
 	"github.com/spf13/cobra"
 )
 
@@ -33,10 +35,38 @@ func init() {
 	rootCmd.AddCommand(configCmd)
 	rootCmd.AddCommand(setupCmd)
 	rootCmd.AddCommand(hookCmd)
+	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(updateCmd)
 }
 
 func Execute() error {
-	return rootCmd.Execute()
+	type updateResult struct {
+		info *update.ReleaseInfo
+	}
+
+	var updateCh chan updateResult
+	if os.Getenv("CWAI_NO_UPDATE_NOTIFIER") == "" {
+		updateCh = make(chan updateResult, 1)
+		go func() {
+			info, _ := update.CheckForUpdate(Version)
+			updateCh <- updateResult{info: info}
+		}()
+	}
+
+	err := rootCmd.Execute()
+
+	if updateCh != nil {
+		select {
+		case result := <-updateCh:
+			if result.info != nil {
+				fmt.Fprintf(os.Stderr, "\nA new version of cwai is available: %s → %s\n", Version, result.info.Version)
+				fmt.Fprintf(os.Stderr, "Run 'cwai update' to upgrade\n")
+			}
+		case <-time.After(2 * time.Second):
+		}
+	}
+
+	return err
 }
 
 func runRoot(cmd *cobra.Command, args []string) error {

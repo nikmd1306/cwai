@@ -4,7 +4,7 @@ builds:
   - main: .
     binary: cwai
     ldflags:
-      - -s -w
+      - -s -w -X github.com/nikmd1306/cwai/cmd.Version={{.Version}}
     goos:
       - linux
       - darwin
@@ -20,6 +20,9 @@ archives:
       - goos: windows
         formats:
           - zip
+
+checksum:
+  name_template: 'checksums.txt'
 
 changelog:
   sort: asc
