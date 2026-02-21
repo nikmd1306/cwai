@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	github.com/spf13/cobra v1.9.1
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	gopkg.in/ini.v1 v1.67.0
 )
 
