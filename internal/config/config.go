@@ -55,6 +55,7 @@ func Load() (*Config, error) {
 	}
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
+		applyEnvOverrides(cfg)
 		return cfg, nil
 	}
 
