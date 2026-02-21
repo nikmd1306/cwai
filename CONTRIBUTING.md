@@ -8,6 +8,7 @@ Thanks for your interest in contributing! This document covers everything you ne
 
 - Go 1.23.4+
 - Git
+- [pre-commit](https://pre-commit.com/)
 
 ### Build & test
 
@@ -15,10 +16,11 @@ Thanks for your interest in contributing! This document covers everything you ne
 git clone https://github.com/nikmd1306/cwai.git
 cd cwai
 
-make build       # Build binary
-make install     # Install to $GOPATH/bin
-make clean       # Remove compiled binary
-go test ./...    # Run all tests
+pre-commit install   # Set up pre-commit hooks
+make build           # Build binary
+make install         # Install to $GOPATH/bin
+make clean           # Remove compiled binary
+go test ./...        # Run all tests
 ```
 
 ## How to Contribute
