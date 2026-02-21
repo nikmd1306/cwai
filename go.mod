@@ -6,7 +6,7 @@ require (
 	github.com/creativeprojects/go-selfupdate v1.5.2
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
-	gopkg.in/ini.v1 v1.67.0
+	gopkg.in/ini.v1 v1.67.1
 )
 
 require (
