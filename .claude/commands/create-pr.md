@@ -69,10 +69,6 @@ Identify the primary area of changes:
 
 ## Key Features (for feat) / Changes (for refactor) / Fixes (for fix)
 - Detailed list of what was added/changed/fixed
-
-## Test plan
-- [ ] Checklist of testing steps
-- [ ] Reference to test files if added
 ```
 
 ### Step 5: Create PR
