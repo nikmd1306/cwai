@@ -1,5 +1,8 @@
 cwai
+cwai-eval
 cwai.exe
 dist/
 .DS_Store
 .envrc
+experiments/runs/
+experiments/sandbox/

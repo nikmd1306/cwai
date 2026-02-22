@@ -33,11 +33,13 @@ type Params struct {
 	ReasoningEffort    string
 	Verbosity          string
 	StructuredOutput   string
+	EmbeddingModel     string
 }
 
 type Client struct {
-	params Params
-	http   *http.Client
+	params          Params
+	http            *http.Client
+	lastTotalTokens int
 }
 
 func NewClient(p Params) *Client {
@@ -48,6 +50,10 @@ func NewClient(p Params) *Client {
 		if family == ModelFamilyReasoning || family == ModelFamilyGPT5 {
 			p.MaxTokensOutput = DefaultReasoningMaxTokensOutput
 		}
+	}
+
+	if p.EmbeddingModel == "" {
+		p.EmbeddingModel = "text-embedding-3-small"
 	}
 
 	return &Client{
@@ -96,6 +102,18 @@ type chatResponse struct {
 			Content string `json:"content"`
 		} `json:"message"`
 	} `json:"choices"`
+	Usage *struct {
+		TotalTokens int `json:"total_tokens"`
+	} `json:"usage,omitempty"`
+	Error *struct {
+		Message string `json:"message"`
+	} `json:"error,omitempty"`
+}
+
+type embeddingResponse struct {
+	Data []struct {
+		Embedding []float64 `json:"embedding"`
+	} `json:"data"`
 	Error *struct {
 		Message string `json:"message"`
 	} `json:"error,omitempty"`
@@ -139,6 +157,12 @@ func (c *Client) GenerateCommitMessage(messages []prompt.Message) (string, error
 	var chatResp chatResponse
 	if err := json.Unmarshal(respBody, &chatResp); err != nil {
 		return "", fmt.Errorf("parse response: %w", err)
+	}
+
+	if chatResp.Usage != nil {
+		c.lastTotalTokens = chatResp.Usage.TotalTokens
+	} else {
+		c.lastTotalTokens = 0
 	}
 
 	if chatResp.Error != nil {
@@ -206,6 +230,64 @@ func (c *Client) GenerateText(messages []prompt.Message) (string, error) {
 	}
 
 	return strings.TrimSpace(chatResp.Choices[0].Message.Content), nil
+}
+
+func (c *Client) LastTotalTokens() int {
+	return c.lastTotalTokens
+}
+
+func (c *Client) GetEmbeddings(input []string) ([][]float64, error) {
+	body := map[string]any{
+		"model": c.params.EmbeddingModel,
+		"input": input,
+	}
+
+	data, err := json.Marshal(body)
+	if err != nil {
+		return nil, fmt.Errorf("marshal request: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", c.params.APIURL+"/embeddings", bytes.NewReader(data))
+	if err != nil {
+		return nil, fmt.Errorf("create request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.params.APIKey)
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("embeddings request failed: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("embeddings API error (HTTP %d): %s", resp.StatusCode, string(respBody))
+	}
+
+	var embResp embeddingResponse
+	if err := json.Unmarshal(respBody, &embResp); err != nil {
+		return nil, fmt.Errorf("parse response: %w", err)
+	}
+
+	if embResp.Error != nil {
+		return nil, fmt.Errorf("embeddings API error: %s", embResp.Error.Message)
+	}
+
+	if len(embResp.Data) != len(input) {
+		return nil, fmt.Errorf("embeddings count mismatch: requested %d, got %d", len(input), len(embResp.Data))
+	}
+
+	result := make([][]float64, len(embResp.Data))
+	for i, d := range embResp.Data {
+		result[i] = d.Embedding
+	}
+	return result, nil
 }
 
 func (c *Client) buildPlainRequestBody(messages []prompt.Message) map[string]any {
