@@ -40,6 +40,7 @@ type RunSummary struct {
 }
 
 var commitHeaderRegex = regexp.MustCompile(`^[a-z]+\([a-z0-9-]+\): .+`)
+var commitHeaderParseRegex = regexp.MustCompile(`^([a-z]+)\(([a-z0-9-]+)\): (.+)$`)
 
 func ValidateFormat(message string) bool {
 	firstLine := strings.SplitN(message, "\n", 2)[0]
@@ -48,8 +49,7 @@ func ValidateFormat(message string) bool {
 
 func ParseCommitHeader(message string) (typ, scope, desc string, err error) {
 	firstLine := strings.SplitN(message, "\n", 2)[0]
-	re := regexp.MustCompile(`^([a-z]+)\(([a-z0-9-]+)\): (.+)$`)
-	matches := re.FindStringSubmatch(firstLine)
+	matches := commitHeaderParseRegex.FindStringSubmatch(firstLine)
 	if matches == nil {
 		return "", "", "", fmt.Errorf("invalid commit header format: %q", firstLine)
 	}
