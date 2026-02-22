@@ -178,6 +178,8 @@ func TestComputeDescSimilarity(t *testing.T) {
 		{"one char diff", "abc", "ab", 2.0 / 3.0},
 		{"case insensitive", "Add Endpoint", "add endpoint", 1.0},
 		{"with whitespace", "  hello  ", "hello", 1.0},
+		{"non-ascii identical", "\u0434\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u044d\u043d\u0434\u043f\u043e\u0438\u043d\u0442", "\u0434\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u044d\u043d\u0434\u043f\u043e\u0438\u043d\u0442", 1.0},
+		{"non-ascii one char diff", "\u0430\u0431\u0432", "\u0430\u0431", 2.0 / 3.0},
 	}
 
 	for _, tt := range tests {

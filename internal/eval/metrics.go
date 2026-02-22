@@ -7,6 +7,7 @@ import (
 	"math"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
 
 type SampleResult struct {
@@ -61,9 +62,9 @@ func ComputeDescSimilarity(a, b string) float64 {
 	if a == b {
 		return 1.0
 	}
-	maxLen := len(a)
-	if len(b) > maxLen {
-		maxLen = len(b)
+	maxLen := utf8.RuneCountInString(a)
+	if bl := utf8.RuneCountInString(b); bl > maxLen {
+		maxLen = bl
 	}
 	if maxLen == 0 {
 		return 1.0
