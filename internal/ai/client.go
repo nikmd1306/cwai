@@ -279,6 +279,10 @@ func (c *Client) GetEmbeddings(input []string) ([][]float64, error) {
 		return nil, fmt.Errorf("embeddings API error: %s", embResp.Error.Message)
 	}
 
+	if len(embResp.Data) != len(input) {
+		return nil, fmt.Errorf("embeddings count mismatch: requested %d, got %d", len(input), len(embResp.Data))
+	}
+
 	result := make([][]float64, len(embResp.Data))
 	for i, d := range embResp.Data {
 		result[i] = d.Embedding
