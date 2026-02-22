@@ -106,11 +106,14 @@ func Install(rootCmd *cobra.Command, shellOverride string) (Shell, string, error
 		return "", "", err
 	}
 
-	if data, err := os.ReadFile(path); err == nil {
+	data, readErr := os.ReadFile(path)
+	if readErr == nil {
 		if strings.Contains(string(data), marker) {
 			return "", "", fmt.Errorf("cwai completion is already installed for %s", sh)
 		}
 		return "", "", fmt.Errorf("completion file already exists at %s (not managed by cwai). Remove it first", path)
+	} else if !os.IsNotExist(readErr) {
+		return "", "", fmt.Errorf("read existing completion file: %w", readErr)
 	}
 
 	script, err := generateScript(rootCmd, sh)
