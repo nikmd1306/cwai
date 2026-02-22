@@ -88,12 +88,21 @@ func TestLoadDatasetFiltered(t *testing.T) {
 		assert.Equal(t, "s3", result[1].ID)
 	})
 
-	t.Run("filter by multiple tags", func(t *testing.T) {
+	t.Run("filter by single tag 'api'", func(t *testing.T) {
 		result, err := LoadDatasetFiltered(path, []string{"api"})
 		require.NoError(t, err)
 		assert.Len(t, result, 2)
 		assert.Equal(t, "s1", result[0].ID)
 		assert.Equal(t, "s3", result[1].ID)
+	})
+
+	t.Run("filter by multiple tags", func(t *testing.T) {
+		result, err := LoadDatasetFiltered(path, []string{"api", "auth"})
+		require.NoError(t, err)
+		assert.Len(t, result, 3)
+		assert.Equal(t, "s1", result[0].ID)
+		assert.Equal(t, "s2", result[1].ID)
+		assert.Equal(t, "s3", result[2].ID)
 	})
 
 	t.Run("filter with no matches", func(t *testing.T) {
