@@ -37,8 +37,9 @@ type Params struct {
 }
 
 type Client struct {
-	params Params
-	http   *http.Client
+	params          Params
+	http            *http.Client
+	lastTotalTokens int
 }
 
 func NewClient(p Params) *Client {
@@ -101,6 +102,9 @@ type chatResponse struct {
 			Content string `json:"content"`
 		} `json:"message"`
 	} `json:"choices"`
+	Usage *struct {
+		TotalTokens int `json:"total_tokens"`
+	} `json:"usage,omitempty"`
 	Error *struct {
 		Message string `json:"message"`
 	} `json:"error,omitempty"`
@@ -153,6 +157,10 @@ func (c *Client) GenerateCommitMessage(messages []prompt.Message) (string, error
 	var chatResp chatResponse
 	if err := json.Unmarshal(respBody, &chatResp); err != nil {
 		return "", fmt.Errorf("parse response: %w", err)
+	}
+
+	if chatResp.Usage != nil {
+		c.lastTotalTokens = chatResp.Usage.TotalTokens
 	}
 
 	if chatResp.Error != nil {
@@ -220,6 +228,10 @@ func (c *Client) GenerateText(messages []prompt.Message) (string, error) {
 	}
 
 	return strings.TrimSpace(chatResp.Choices[0].Message.Content), nil
+}
+
+func (c *Client) LastTotalTokens() int {
+	return c.lastTotalTokens
 }
 
 func (c *Client) GetEmbeddings(input []string) ([][]float64, error) {
