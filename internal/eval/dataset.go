@@ -6,7 +6,9 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 )
 
 type Sample struct {
@@ -27,24 +29,26 @@ func LoadDataset(path string) ([]Sample, error) {
 	defer func() { _ = f.Close() }()
 
 	var samples []Sample
-	scanner := bufio.NewScanner(f)
-	scanner.Buffer(make([]byte, 0, 1024*1024), 1024*1024)
+	reader := bufio.NewReader(f)
 
 	lineNum := 0
-	for scanner.Scan() {
+	for {
+		line, err := reader.ReadString('\n')
 		lineNum++
-		line := scanner.Text()
-		if line == "" {
-			continue
+		line = strings.TrimRight(line, "\r\n")
+		if line != "" {
+			var s Sample
+			if jsonErr := json.Unmarshal([]byte(line), &s); jsonErr != nil {
+				return nil, fmt.Errorf("line %d: %w", lineNum, jsonErr)
+			}
+			samples = append(samples, s)
 		}
-		var s Sample
-		if err := json.Unmarshal([]byte(line), &s); err != nil {
-			return nil, fmt.Errorf("line %d: %w", lineNum, err)
+		if err == io.EOF {
+			break
 		}
-		samples = append(samples, s)
-	}
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("read dataset: %w", err)
+		if err != nil {
+			return nil, fmt.Errorf("read dataset: %w", err)
+		}
 	}
 	return samples, nil
 }
