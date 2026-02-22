@@ -33,6 +33,7 @@ type Params struct {
 	ReasoningEffort    string
 	Verbosity          string
 	StructuredOutput   string
+	EmbeddingModel     string
 }
 
 type Client struct {
@@ -48,6 +49,10 @@ func NewClient(p Params) *Client {
 		if family == ModelFamilyReasoning || family == ModelFamilyGPT5 {
 			p.MaxTokensOutput = DefaultReasoningMaxTokensOutput
 		}
+	}
+
+	if p.EmbeddingModel == "" {
+		p.EmbeddingModel = "text-embedding-3-small"
 	}
 
 	return &Client{
@@ -219,7 +224,7 @@ func (c *Client) GenerateText(messages []prompt.Message) (string, error) {
 
 func (c *Client) GetEmbeddings(input []string) ([][]float64, error) {
 	body := map[string]any{
-		"model": "text-embedding-3-small",
+		"model": c.params.EmbeddingModel,
 		"input": input,
 	}
 
