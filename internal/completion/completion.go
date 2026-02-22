@@ -86,7 +86,13 @@ func generateScript(rootCmd *cobra.Command, sh Shell) (string, error) {
 		return "", fmt.Errorf("generate completion script: %w", err)
 	}
 
-	return marker + "\n" + buf.String(), nil
+	script := buf.String()
+	if sh == Zsh {
+		if idx := strings.Index(script, "\n"); idx != -1 {
+			return script[:idx+1] + marker + "\n" + script[idx+1:], nil
+		}
+	}
+	return marker + "\n" + script, nil
 }
 
 func Install(rootCmd *cobra.Command, shellOverride string) (Shell, string, error) {

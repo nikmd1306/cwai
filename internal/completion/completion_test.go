@@ -3,6 +3,7 @@ package completion
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/spf13/cobra"
@@ -81,7 +82,9 @@ func TestInstall_Zsh(t *testing.T) {
 
 	data, err := os.ReadFile(path)
 	require.NoError(t, err)
-	assert.Contains(t, string(data), marker)
+	content := string(data)
+	assert.Contains(t, content, marker)
+	assert.True(t, strings.HasPrefix(content, "#compdef"), "zsh completion must start with #compdef")
 }
 
 func TestInstall_Fish(t *testing.T) {
