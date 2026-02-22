@@ -11,7 +11,7 @@ install:
 	go install -ldflags "$(LDFLAGS)" .
 
 clean:
-	rm -f $(BINARY)
+	rm -f $(BINARY) $(BINARY)-eval
 
 test:
 	go test ./...
@@ -25,10 +25,10 @@ lint:
 check: build vet lint test
 
 eval:
-	go build -tags eval -ldflags "$(LDFLAGS)" -o $(BINARY) . && ./$(BINARY) eval --dataset experiments/dataset/golden.jsonl --out experiments/runs
+	go build -tags eval -ldflags "$(LDFLAGS)" -o $(BINARY)-eval . && ./$(BINARY)-eval eval --dataset experiments/dataset/golden.jsonl --out experiments/runs
 
 eval-compare:
-	go build -tags eval -ldflags "$(LDFLAGS)" -o $(BINARY) . && ./$(BINARY) eval compare $(RUN_A) $(RUN_B)
+	go build -tags eval -ldflags "$(LDFLAGS)" -o $(BINARY)-eval . && ./$(BINARY)-eval eval compare $(RUN_A) $(RUN_B)
 
 eval-test:
 	go test -tags eval ./internal/eval/... -v
