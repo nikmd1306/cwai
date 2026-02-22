@@ -4,6 +4,7 @@ package eval
 
 import (
 	"fmt"
+	"math"
 	"regexp"
 	"strings"
 )
@@ -103,6 +104,120 @@ func levenshtein(a, b string) int {
 		prev, curr = curr, prev
 	}
 	return prev[lb]
+}
+
+func CosineSimilarity(a, b []float64) float64 {
+	if len(a) != len(b) || len(a) == 0 {
+		return 0.0
+	}
+	var dot, normA, normB float64
+	for i := range a {
+		dot += a[i] * b[i]
+		normA += a[i] * a[i]
+		normB += b[i] * b[i]
+	}
+	if normA == 0 || normB == 0 {
+		return 0.0
+	}
+	sim := dot / (math.Sqrt(normA) * math.Sqrt(normB))
+	if sim < 0 {
+		return 0.0
+	}
+	return sim
+}
+
+func JaroWinkler(a, b string) float64 {
+	a = strings.ToLower(strings.TrimSpace(a))
+	b = strings.ToLower(strings.TrimSpace(b))
+
+	ra := []rune(a)
+	rb := []rune(b)
+	la := len(ra)
+	lb := len(rb)
+
+	if la == 0 && lb == 0 {
+		return 1.0
+	}
+	if la == 0 || lb == 0 {
+		return 0.0
+	}
+
+	matchDist := la
+	if lb > la {
+		matchDist = lb
+	}
+	matchDist = matchDist/2 - 1
+	if matchDist < 0 {
+		matchDist = 0
+	}
+
+	aMatched := make([]bool, la)
+	bMatched := make([]bool, lb)
+
+	matches := 0
+	transpositions := 0
+
+	for i := 0; i < la; i++ {
+		start := i - matchDist
+		if start < 0 {
+			start = 0
+		}
+		end := i + matchDist + 1
+		if end > lb {
+			end = lb
+		}
+		for j := start; j < end; j++ {
+			if bMatched[j] || ra[i] != rb[j] {
+				continue
+			}
+			aMatched[i] = true
+			bMatched[j] = true
+			matches++
+			break
+		}
+	}
+
+	if matches == 0 {
+		return 0.0
+	}
+
+	j := 0
+	for i := 0; i < la; i++ {
+		if !aMatched[i] {
+			continue
+		}
+		for !bMatched[j] {
+			j++
+		}
+		if ra[i] != rb[j] {
+			transpositions++
+		}
+		j++
+	}
+
+	jaro := (float64(matches)/float64(la) + float64(matches)/float64(lb) + float64(matches-transpositions/2)/float64(matches)) / 3.0
+
+	prefix := 0
+	maxPrefix := 4
+	if la < maxPrefix {
+		maxPrefix = la
+	}
+	if lb < maxPrefix {
+		maxPrefix = lb
+	}
+	for i := 0; i < maxPrefix; i++ {
+		if ra[i] == rb[i] {
+			prefix++
+		} else {
+			break
+		}
+	}
+
+	return jaro + float64(prefix)*0.1*(1.0-jaro)
+}
+
+func HybridSimilarity(cosine, jaroWinkler float64) float64 {
+	return 0.75*cosine + 0.25*jaroWinkler
 }
 
 func Summarize(runID, model, apiURL string, structured bool, results []SampleResult) RunSummary {

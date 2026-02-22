@@ -209,6 +209,73 @@ func TestLevenshtein(t *testing.T) {
 	}
 }
 
+func TestCosineSimilarity(t *testing.T) {
+	tests := []struct {
+		name     string
+		a, b     []float64
+		expected float64
+	}{
+		{"identical", []float64{1, 2, 3}, []float64{1, 2, 3}, 1.0},
+		{"orthogonal", []float64{1, 0, 0}, []float64{0, 1, 0}, 0.0},
+		{"opposite clamped", []float64{1, 0, 0}, []float64{-1, 0, 0}, 0.0},
+		{"similar", []float64{1, 1, 0}, []float64{1, 0, 0}, 0.707},
+		{"empty", []float64{}, []float64{}, 0.0},
+		{"mismatched length", []float64{1, 2}, []float64{1, 2, 3}, 0.0},
+		{"zero vectors", []float64{0, 0, 0}, []float64{0, 0, 0}, 0.0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := CosineSimilarity(tt.a, tt.b)
+			assert.InDelta(t, tt.expected, result, 0.01)
+		})
+	}
+}
+
+func TestJaroWinkler(t *testing.T) {
+	tests := []struct {
+		name     string
+		a, b     string
+		expected float64
+	}{
+		{"identical", "test string", "test string", 1.0},
+		{"both empty", "", "", 1.0},
+		{"one empty", "test", "", 0.0},
+		{"classic martha/marhta", "martha", "marhta", 0.961},
+		{"classic dwayne/duane", "dwayne", "duane", 0.84},
+		{"completely different", "abcdef", "zyxwvu", 0.0},
+		{"case insensitive", "Add Endpoint", "add endpoint", 1.0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := JaroWinkler(tt.a, tt.b)
+			assert.InDelta(t, tt.expected, result, 0.01)
+		})
+	}
+}
+
+func TestHybridSimilarity(t *testing.T) {
+	tests := []struct {
+		name                string
+		cosine, jaroWinkler float64
+		expected            float64
+	}{
+		{"both perfect", 1.0, 1.0, 1.0},
+		{"both zero", 0.0, 0.0, 0.0},
+		{"cosine only", 1.0, 0.0, 0.75},
+		{"jaro-winkler only", 0.0, 1.0, 0.25},
+		{"mixed", 0.8, 0.6, 0.75*0.8 + 0.25*0.6},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := HybridSimilarity(tt.cosine, tt.jaroWinkler)
+			assert.InDelta(t, tt.expected, result, 0.001)
+		})
+	}
+}
+
 func TestSummarize(t *testing.T) {
 	results := []SampleResult{
 		{SampleID: "s1", TypeMatch: true, ScopeMatch: true, FormatValid: true, DescSimilarity: 0.8, LatencyMs: 1000, TokensUsed: 100},

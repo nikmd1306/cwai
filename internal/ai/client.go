@@ -101,6 +101,15 @@ type chatResponse struct {
 	} `json:"error,omitempty"`
 }
 
+type embeddingResponse struct {
+	Data []struct {
+		Embedding []float64 `json:"embedding"`
+	} `json:"data"`
+	Error *struct {
+		Message string `json:"message"`
+	} `json:"error,omitempty"`
+}
+
 func (c *Client) IsStructuredOutput() bool {
 	return SupportsStructuredOutput(c.params.APIURL, c.params.StructuredOutput)
 }
@@ -206,6 +215,56 @@ func (c *Client) GenerateText(messages []prompt.Message) (string, error) {
 	}
 
 	return strings.TrimSpace(chatResp.Choices[0].Message.Content), nil
+}
+
+func (c *Client) GetEmbeddings(input []string) ([][]float64, error) {
+	body := map[string]any{
+		"model": "text-embedding-3-small",
+		"input": input,
+	}
+
+	data, err := json.Marshal(body)
+	if err != nil {
+		return nil, fmt.Errorf("marshal request: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", c.params.APIURL+"/embeddings", bytes.NewReader(data))
+	if err != nil {
+		return nil, fmt.Errorf("create request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.params.APIKey)
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("embeddings request failed: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("embeddings API error (HTTP %d): %s", resp.StatusCode, string(respBody))
+	}
+
+	var embResp embeddingResponse
+	if err := json.Unmarshal(respBody, &embResp); err != nil {
+		return nil, fmt.Errorf("parse response: %w", err)
+	}
+
+	if embResp.Error != nil {
+		return nil, fmt.Errorf("embeddings API error: %s", embResp.Error.Message)
+	}
+
+	result := make([][]float64, len(embResp.Data))
+	for i, d := range embResp.Data {
+		result[i] = d.Embedding
+	}
+	return result, nil
 }
 
 func (c *Client) buildPlainRequestBody(messages []prompt.Message) map[string]any {

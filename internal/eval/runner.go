@@ -134,8 +134,18 @@ func evaluateSample(client *ai.Client, sample Sample, language string, structure
 		result.ScopeMatch = genScope == sample.ExpectedScope
 
 		_, _, expectedDesc, _ := ParseCommitHeader(sample.ExpectedMessage)
-		result.DescSimilarity = ComputeDescSimilarity(genDesc, expectedDesc)
+		result.DescSimilarity = computeHybridOrFallback(client, genDesc, expectedDesc)
 	}
 
 	return result
+}
+
+func computeHybridOrFallback(client *ai.Client, genDesc, expectedDesc string) float64 {
+	embeddings, err := client.GetEmbeddings([]string{genDesc, expectedDesc})
+	if err != nil || len(embeddings) < 2 {
+		return ComputeDescSimilarity(genDesc, expectedDesc)
+	}
+	cosine := CosineSimilarity(embeddings[0], embeddings[1])
+	jw := JaroWinkler(genDesc, expectedDesc)
+	return HybridSimilarity(cosine, jw)
 }
