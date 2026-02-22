@@ -32,12 +32,15 @@ func init() {
 	_ = rootCmd.Flags().MarkHidden("hook")
 	rootCmd.Flags().BoolVarP(&yesFlag, "yes", "y", false, "auto-accept generated commit message")
 
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
+
 	rootCmd.AddCommand(configCmd)
 	rootCmd.AddCommand(setupCmd)
 	rootCmd.AddCommand(hookCmd)
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(updateCmd)
 	rootCmd.AddCommand(changelogCmd)
+	rootCmd.AddCommand(completionCmd)
 }
 
 func Execute() error {
