@@ -5,6 +5,7 @@ package eval
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -84,7 +85,9 @@ func Run(cfg RunConfig) ([]SampleResult, error) {
 		results = append(results, result)
 
 		line, _ := json.Marshal(result)
-		fmt.Fprintf(resultsFile, "%s\n", line)
+		if _, err := fmt.Fprintf(resultsFile, "%s\n", line); err != nil {
+			log.Printf("WARNING: failed to write result for sample %s: %v", sample.ID, err)
+		}
 
 		fmt.Printf("  [%d/%d] %s: ", i+1, len(samples), sample.ID)
 		if result.Error != "" {
@@ -127,7 +130,11 @@ func evaluateSample(client *ai.Client, sample Sample, language string, structure
 	}
 
 	result.GeneratedMessage = generated
-	result.TokensUsed = len(sample.Diff) / 4
+	if tokens := client.LastTotalTokens(); tokens > 0 {
+		result.TokensUsed = tokens
+	} else {
+		result.TokensUsed = len(sample.Diff) / 4
+	}
 	result.FormatValid = ValidateFormat(generated)
 
 	genType, genScope, genDesc, parseErr := ParseCommitHeader(generated)
@@ -135,8 +142,12 @@ func evaluateSample(client *ai.Client, sample Sample, language string, structure
 		result.TypeMatch = genType == sample.ExpectedType
 		result.ScopeMatch = genScope == sample.ExpectedScope
 
-		_, _, expectedDesc, _ := ParseCommitHeader(sample.ExpectedMessage)
-		result.DescSimilarity = computeHybridOrFallback(client, genDesc, expectedDesc)
+		_, _, expectedDesc, expectedParseErr := ParseCommitHeader(sample.ExpectedMessage)
+		if expectedParseErr != nil {
+			log.Printf("WARNING: malformed expected message for sample %s: %v", sample.ID, expectedParseErr)
+		} else {
+			result.DescSimilarity = computeHybridOrFallback(client, genDesc, expectedDesc)
+		}
 	}
 
 	return result
