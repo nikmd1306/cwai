@@ -55,7 +55,9 @@ INI file at `~/.cwai`. Key settings: `CWAI_API_KEY`, `CWAI_API_URL`, `CWAI_MODEL
 
 ## Commits
 
-When asked to commit, use `cwai` instead of `git commit`: stage files with `git add`, then run `cwai` to generate and apply the commit message. Use `cwai --yes` (or `cwai -y`) for non-interactive mode (CI, scripts, agents).
+**IMPORTANT: NEVER use `git commit` directly. Always use `cwai` to create commits.**
+
+Stage files with `git add`, then run `cwai` to generate and apply the commit message. Use `cwai --yes` (or `cwai -y`) for non-interactive mode (CI, scripts, agents). This applies to all commits without exception — single or multiple, interactive or automated.
 
 ## Merge Strategy
 
