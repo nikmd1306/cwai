@@ -161,6 +161,8 @@ func (c *Client) GenerateCommitMessage(messages []prompt.Message) (string, error
 
 	if chatResp.Usage != nil {
 		c.lastTotalTokens = chatResp.Usage.TotalTokens
+	} else {
+		c.lastTotalTokens = 0
 	}
 
 	if chatResp.Error != nil {
