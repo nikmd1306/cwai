@@ -14,20 +14,21 @@ import (
 )
 
 type RunConfig struct {
-	RunID            string        `json:"run_id"`
-	DatasetPath      string        `json:"dataset_path"`
-	Model            string        `json:"model"`
-	APIURL           string        `json:"api_url"`
-	APIKey           string        `json:"-"`
-	MaxTokensOutput  int           `json:"max_tokens_output"`
-	Temperature      float64       `json:"temperature"`
-	HasTemperature   bool          `json:"has_temperature"`
-	ReasoningEffort  string        `json:"reasoning_effort,omitempty"`
-	StructuredOutput string        `json:"structured_output"`
-	Language         string        `json:"language"`
-	Tags             []string      `json:"tags,omitempty"`
-	OutputDir        string        `json:"output_dir"`
-	Delay            time.Duration `json:"-"`
+	RunID              string        `json:"run_id"`
+	DatasetPath        string        `json:"dataset_path"`
+	Model              string        `json:"model"`
+	APIURL             string        `json:"api_url"`
+	APIKey             string        `json:"-"`
+	MaxTokensOutput    int           `json:"max_tokens_output"`
+	HasMaxTokensOutput bool          `json:"has_max_tokens_output"`
+	Temperature        float64       `json:"temperature"`
+	HasTemperature     bool          `json:"has_temperature"`
+	ReasoningEffort    string        `json:"reasoning_effort,omitempty"`
+	StructuredOutput   string        `json:"structured_output"`
+	Language           string        `json:"language"`
+	Tags               []string      `json:"tags,omitempty"`
+	OutputDir          string        `json:"output_dir"`
+	Delay              time.Duration `json:"-"`
 }
 
 func Run(cfg RunConfig) ([]SampleResult, error) {
@@ -40,14 +41,15 @@ func Run(cfg RunConfig) ([]SampleResult, error) {
 	}
 
 	client := ai.NewClient(ai.Params{
-		APIKey:           cfg.APIKey,
-		APIURL:           cfg.APIURL,
-		Model:            cfg.Model,
-		MaxTokensOutput:  cfg.MaxTokensOutput,
-		Temperature:      cfg.Temperature,
-		HasTemperature:   cfg.HasTemperature,
-		ReasoningEffort:  cfg.ReasoningEffort,
-		StructuredOutput: cfg.StructuredOutput,
+		APIKey:             cfg.APIKey,
+		APIURL:             cfg.APIURL,
+		Model:              cfg.Model,
+		MaxTokensOutput:    cfg.MaxTokensOutput,
+		HasMaxTokensOutput: cfg.HasMaxTokensOutput,
+		Temperature:        cfg.Temperature,
+		HasTemperature:     cfg.HasTemperature,
+		ReasoningEffort:    cfg.ReasoningEffort,
+		StructuredOutput:   cfg.StructuredOutput,
 	})
 
 	isStructured := client.IsStructuredOutput()

@@ -71,20 +71,21 @@ func runEval(cmd *cobra.Command, args []string) error {
 	runID := time.Now().UTC().Format("2006-01-02T15-04-05") + "_" + model
 
 	runCfg := eval.RunConfig{
-		RunID:            runID,
-		DatasetPath:      evalDataset,
-		Model:            model,
-		APIURL:           apiURL,
-		APIKey:           cfg.APIKey,
-		MaxTokensOutput:  cfg.MaxTokensOutput,
-		Temperature:      cfg.Temperature,
-		HasTemperature:   cfg.HasTemperature,
-		ReasoningEffort:  cfg.ReasoningEffort,
-		StructuredOutput: structuredOutput,
-		Language:         cfg.Language,
-		Tags:             evalTags,
-		OutputDir:        evalOutputDir,
-		Delay:            evalDelay,
+		RunID:              runID,
+		DatasetPath:        evalDataset,
+		Model:              model,
+		APIURL:             apiURL,
+		APIKey:             cfg.APIKey,
+		MaxTokensOutput:    cfg.MaxTokensOutput,
+		HasMaxTokensOutput: cfg.HasMaxTokensOutput,
+		Temperature:        cfg.Temperature,
+		HasTemperature:     cfg.HasTemperature,
+		ReasoningEffort:    cfg.ReasoningEffort,
+		StructuredOutput:   structuredOutput,
+		Language:           cfg.Language,
+		Tags:               evalTags,
+		OutputDir:          evalOutputDir,
+		Delay:              evalDelay,
 	}
 
 	fmt.Printf("Starting evaluation run: %s\n", runID)
